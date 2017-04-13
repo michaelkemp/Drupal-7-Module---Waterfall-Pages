@@ -1,0 +1,841 @@
+<?php
+
+/**
+ *
+ * Implements hook_node_info()
+ *
+ */
+// ================ ADDS CONTENT TYPE - Feature Page ================
+function waterfall_pages_node_info() {
+    
+  $items = array(
+    'waterfall_file' => array(
+      'name' => t('Waterfall File'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+    'waterfall_image' => array(
+      'name' => t('Waterfall Image'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+    'waterfall_link' => array(
+      'name' => t('Waterfall Link'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+    'waterfall_page' => array(
+      'name' => t('Waterfall Page'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+    'waterfall_text' => array(
+      'name' => t('Waterfall Text'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+    'waterfall_video' => array(
+      'name' => t('Waterfall Video'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+// ================ HOOK To ADD CONTENT FOR NEW TYPE - Feature Page ================
+function waterfall_pages_form($node, $form_state) {
+    return node_content_form($node, $form_state);
+}
+
+/*
+ *
+ * implements hook_help($path, $arg)
+ *
+*/
+function waterfall_pages_help($path, $arg){
+    switch($path){
+        case "admin/help#waterfall_pages":
+            return '<p>' . t("Blocks and CSS for Waterfall Pages.") . '</p>';
+            break;
+    }
+}
+
+/*
+ *
+ * implements hook_init()
+ *
+*/
+function waterfall_pages_init(){
+    // module path used by XSlider
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    drupal_add_js(array("thisModule"=> array('waterfallPath' => $module_path)), "setting");
+
+}
+
+
+/*
+ *
+ * implements hook_theme()
+ *
+*/
+function waterfall_pages_theme($existing, $type, $theme, $path) {
+    $theme = array();
+    $theme['node__waterfall_file'] = array(
+        'render element' => 'content',
+        'base hook' => 'node',
+        'template' => 'node--waterfall_file',
+        'path' => drupal_get_path('module', 'waterfall_pages') . '/theme',
+    );
+    $theme['node__waterfall_image'] = array(
+        'render element' => 'content',
+        'base hook' => 'node',
+        'template' => 'node--waterfall_image',
+        'path' => drupal_get_path('module', 'waterfall_pages') . '/theme',
+    );
+    $theme['node__waterfall_video'] = array(
+        'render element' => 'content',
+        'base hook' => 'node',
+        'template' => 'node--waterfall_video',
+        'path' => drupal_get_path('module', 'waterfall_pages') . '/theme',
+    );
+    $theme['node__waterfall_text'] = array(
+        'render element' => 'content',
+        'base hook' => 'node',
+        'template' => 'node--waterfall_text',
+        'path' => drupal_get_path('module', 'waterfall_pages') . '/theme',
+    );
+    $theme['node__waterfall_page'] = array(
+        'render element' => 'content',
+        'base hook' => 'node',
+        'template' => 'node--waterfall_page',
+        'path' => drupal_get_path('module', 'waterfall_pages') . '/theme',
+    );
+    return $theme;
+}
+
+/*
+ *
+ * implements hook_menu()
+ *
+*/
+function waterfall_pages_menu() {
+    $items = array();
+
+    $items['section/%'] = array(
+        'title' => 'Display Menu Children',
+        'page callback' => 'wpCreateWaterfall',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK, 
+        'page arguments' => array(0,1) 
+    );
+
+    $items['sitemap.xml' ] = array(
+        'title' => 'SiteMap',
+        'page callback' => 'wpSiteMap',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK
+    );
+    $items['404PageNotFound'] = array(
+        'title' => 'Page Not Found',
+        'page callback' => 'wp404PageNotFound',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK
+    );
+    $items['403AccessDenied'] = array(
+        'title' => 'Access Denied',
+        'page callback' => 'wp403AccessDenied',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK
+    );
+    
+    return $items;
+}
+
+
+function wp404PageNotFound() {
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    $img = "/" . $module_path . "/images/brigham.svg";
+    $url = $_SERVER["REQUEST_URI"];
+
+$html=<<<HTML
+    <div class='wrapper-404-403'>
+        <table id="404-table"     style="background-color:#011948; display:none;">
+            <tr><td>
+                <div   id="404-img-div"   style="float:left;"><img id="404-img" src="${img}" alt="Error 404: Page Not Found"></div>
+                <div   id="404-spav-div"  style="float:left;">
+                    <span  id="404-spav-not"  style="color:white; display:block;">This is <em>NOT</em> the place</span>
+                    <span  id="404-spav-link" style="color:white; display:block;"><br>Whoops! The page [ ${url} ] could not be found.</span>
+                </div>
+            </td></tr>
+        </table>
+    </div>
+HTML;
+
+$js=<<<JS
+    (function ($) { jQuery(document).ready(function($) {
+
+        function resizeOutput() {
+            width = $('#content').width();
+            height = $(window).height() - ($("#header").height() + $("#footer").height());
+            tablew = width * 0.8; if(tablew < 250) {tablew = 250;}
+            tableh = tablew * 0.2;
+            if (height < tableh + 40) { height = tableh + 40; } 
+            notPad = tableh * 0.1; linkPad = notPad * -1;
+            img = tableh;
+            span = tablew * 0.75;
+            tpad = (width - tablew) / 2;
+            fontLarge = tablew/15; fontSmall = tablew/30;
+            $('.wrapper-404-403').css({'height':height+'px','padding-top':'40px'});
+            $('#404-img').css({'width':img+'px','height':img+'px'});
+            $('#404-img-div').css({'width':img+'px','height':img+'px'});
+            $('#404-spav-div').css({'width':span+'px','height':img+'px'});
+            $('#404-table').css({'width':tablew+'px', 'height':tableh+'px', 'margin-left':tpad+'px'});
+            $('#404-spav-not').css({ 'margin-top':notPad+'px', 'font-size':fontLarge+'px', 'line-height':fontLarge+'px'});
+            $('#404-spav-link').css({'margin-top':linkPad+'px', 'font-size':fontSmall+'px', 'line-height':fontSmall+'px'});
+            $('#404-table').css({'display':'table'});
+        }
+        resizeOutput();
+        $( window ).resize(function() { resizeOutput(); });
+
+    }); }(jQuery));
+JS;
+
+    drupal_add_js($js, 'inline');
+
+    $output = array (
+        '#type' => 'markup',
+        '#prefix' => '',
+        '#markup' => $html,
+        '#suffix' => '',
+        );
+    return $output;
+
+}
+
+function wp403AccessDenied() {
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    $img = "/" . $module_path . "/images/brigham.svg";
+    $url = $_SERVER["REQUEST_URI"];
+
+$html=<<<HTML
+    <div class='wrapper-404-403'>
+        <table id="403-table"     style="background-color:#011948; display:none;">
+            <tr><td>
+                <div   id="403-img-div"   style="float:left;"><img id="403-img" src="${img}" alt="Error 403: Access Denied"></div>
+                <div   id="403-spav-div"  style="float:left;">
+                    <span  id="403-spav-not"  style="color:white; display:block;">This is <em>NOT</em> the place</span>
+                    <span  id="403-spav-link" style="color:white; display:block;"><br>You do not have permission to view the page [ ${url} ].</span>
+                </div>
+            </td></tr>
+        </table>
+    </div>
+HTML;
+
+$js=<<<JS
+    (function ($) { jQuery(document).ready(function($) {
+
+        function resizeOutput() {
+            width = $('#content').width();
+            height = $(window).height() - ($("#header").height() + $("#footer").height());
+            tablew = width * 0.8; if(tablew < 250) {tablew = 250;}
+            tableh = tablew * 0.2;
+            if (height < tableh + 40) { height = tableh + 40; } 
+            notPad = tableh * 0.1; linkPad = notPad * -1;
+            img = tableh;
+            span = tablew * 0.75;
+            tpad = (width - tablew) / 2;
+            fontLarge = tablew/15; fontSmall = tablew/30;
+            $('.wrapper-404-403').css({'height':height+'px','padding-top':'40px'});
+            $('#403-img').css({'width':img+'px','height':img+'px'});
+            $('#403-img-div').css({'width':img+'px','height':img+'px'});
+            $('#403-spav-div').css({'width':span+'px','height':img+'px'});
+            $('#403-table').css({'width':tablew+'px', 'height':tableh+'px', 'margin-left':tpad+'px'});
+            $('#403-spav-not').css({ 'margin-top':notPad+'px', 'font-size':fontLarge+'px', 'line-height':fontLarge+'px'});
+            $('#403-spav-link').css({'margin-top':linkPad+'px', 'font-size':fontSmall+'px', 'line-height':fontSmall+'px'});
+            $('#403-table').css({'display':'table'});
+        }
+        resizeOutput();
+        $( window ).resize(function() { resizeOutput(); });
+
+    }); }(jQuery));
+JS;
+
+    drupal_add_js($js, 'inline');
+
+    $output = array (
+        '#type' => 'markup',
+        '#prefix' => '',
+        '#markup' => $html,
+        '#suffix' => '',
+        );
+    return $output;
+
+}
+
+/* ======= Output Sitemap (SEO) ========== */
+function wpSiteMap() {
+    $ssl = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true:false;
+    if ($ssl) {$protocol = "https";} else {$protocol = "http";}
+    $host     = $_SERVER['HTTP_HOST'];
+
+    $date = date('Y-m-d',strtotime("+14 day", time()));
+    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    echo '  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    echo "      <url>\n";
+    echo "          <loc>" . $protocol . "://" . $host . "/" . "</loc>\n";
+    echo "      </url>\n";
+
+    // RUN VIEW
+    $tmp = views_get_view('glossary');
+    $tmp->set_display("page");
+    $tmp->execute();
+    $view = $tmp->result;
+    foreach($view as $nodeInfo) {
+        $thisNid = $nodeInfo->nid;
+        $thisTtl = $nodeInfo->node_title;
+        $nodeAlias = drupal_lookup_path("alias", "node/" . $thisNid);
+        if ($nodeAlias === false) {
+            $alias = "node/". $thisNid;
+        } else {
+            $alias = $nodeAlias;
+        }
+        echo '      <url>' . "\n";
+        echo '          <loc>' . $protocol . "://" . $host . "/" . $alias. '</loc>' . "\n";
+        echo '      </url>' . "\n";
+    }
+
+    echo '</urlset>' . "\n";
+
+}
+
+
+/*
+ *
+ * implements hook_block_info()
+ *
+*/
+function waterfall_pages_block_info(){
+    $blocks = array();
+    $blocks['waterfall_scrollTop'] = array(
+        'info' => t("Waterfall Pages Scroll To Page Top"),
+        'cache' => DRUPAL_CACHE_GLOBAL,
+    );
+    $blocks['waterfall_nodeImageSlider'] = array(
+        'info' => t("Waterfall Pages Node Image Slider"),
+        'cache' => DRUPAL_CACHE_PER_PAGE,
+    );
+    $blocks['waterfall_relatedLinks'] = array(
+        'info' => t("Waterfall Pages Related Links"),
+        'cache' => DRUPAL_CACHE_PER_PAGE,
+    );
+    return $blocks;
+}
+
+
+/*
+ *
+ * implements hook_block_view($delta = '')
+ *
+*/
+function waterfall_pages_block_view($block_name = ""){
+    switch ($block_name){
+        case 'waterfall_scrollTop':
+            $block['subject'] = t("Waterfall Pages Scroll To Page Top");
+            $block['content'] = wpScrollTop();
+            return $block;
+        case 'waterfall_nodeImageSlider':
+            $block['subject'] = t('Waterfall Pages Node Image Slider');
+            $block['content'] = wpNodeImageSlider();
+            return $block;
+        case 'waterfall_relatedLinks':
+            $block['subject'] = t("Waterfall Pages Related Links");
+            $block['content'] = wpRelatedLinks();
+            return $block;
+    }
+}
+
+function wpScrollTop () {
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    $img = "/" . $module_path . "/images/up.png";
+
+$js=<<<JS
+    (function ($) { jQuery(document).ready(function($) {
+        
+        $('head').append("<style id='scrollTopCSS'></style>");
+        $('body').append("<div id='up'><img id='up-arrow' src='${img}' alt='Up arrow'></div>");
+        
+        $('#scrollTopCSS').text('#up {position:fixed;bottom:0;right:0;width:40px;height:40px;z-index:20;} #up-arrow {opacity:0;filter:alpha(opacity=0);width:40px;height:40px;}');
+        
+        var arrowShowing = 0;
+        $(window).scroll(function(){
+            if (($(window).scrollTop() >= 500) && (!arrowShowing)) { 
+                $('#up-arrow').fadeTo('slow',0.5); $('#up-arrow').css({'cursor':'pointer'}); 
+                arrowShowing = 1; 
+            }
+            if (($(window).scrollTop() < 500) && (arrowShowing)) { 
+                $('#up-arrow').fadeTo('slow',0); $('#up-arrow').css({'cursor':'default'}); 
+                arrowShowing = 0; 
+            }
+        });
+        $('#up-arrow').click(function() { 
+            $('html, body').animate({ scrollTop: 0 }, 'slow'); 
+        });
+        
+    }); }(jQuery));
+JS;
+
+    drupal_add_js($js, 'inline');
+
+}
+
+function wpNodeImageSlider() {
+    $html = "";
+    
+    $URL = explode('/',current_path());
+    if($URL[0] === 'node') { 
+        $node = node_load($URL[1]); 
+    } else {
+        $output = array (
+            '#type' => 'markup',
+            '#prefix' => '',
+            '#markup' => $html,
+            '#suffix' => '',
+            );
+        return $output;     
+    }
+    
+    
+
+    $sliderOutput = '<ul id="imageSlider">';
+    if (isset($node->field_waterfall_media_entities[LANGUAGE_NONE])) {
+        foreach($node->field_waterfall_media_entities[LANGUAGE_NONE] as $slideNodeID) {
+            $snID = isset($slideNodeID['target_id']) ? $slideNodeID['target_id'] : -1;
+            if ($snID > 0) {
+                $slideNode = node_load($snID);
+                if (isset($slideNode->type)) {
+                    if (isset($slideNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value'])) {
+                        $caption = '<div class="caption-bottom">' . $slideNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value'] . '</div>';
+                    } else {
+                        $caption = '';
+                    }
+                    if ($slideNode->type == "waterfall_video") {
+                        $vidID = $slideNode->field_waterfall_video_entity[LANGUAGE_NONE][0]['video_id'];
+                        $ytImg = wpGetYoutubeImage($vidID);
+                        $ytAlt = $slideNode->title .' thumbnail';
+                        $sliderOutput.= '<li><img id="youtube-slide:' .$vidID. '" src="'.$ytImg.'" alt="'.$ytAlt.'">' .$caption. '</li>';
+                    } else if ($slideNode->type == "waterfall_image") {
+                        $imgURI = $slideNode->field_waterfall_image_entity[LANGUAGE_NONE][0]['uri'];
+                        $imgURL = file_create_url($imgURI);
+                        $imgAlt = $slideNode->title;
+                        $sliderOutput.= '<li><img src="' .$imgURL. '" alt="'.$imgAlt.'">' .$caption. '</li>';
+                    }
+                }
+            }    
+        }
+    }
+    $sliderOutput.= '</ul>';
+
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    drupal_add_js('/' . $module_path . '/XSlider/iframe_api.js', array('type'=>'file', 'scope'=>'footer') );
+    drupal_add_js('/' . $module_path . '/XSlider/jquery.anythingslider.min.js', array('type'=>'file', 'scope'=>'footer'));
+    drupal_add_js('/' . $module_path . '/XSlider/XSlider.js', array('type'=>'file', 'scope'=>'footer'));
+    drupal_add_css($module_path ."/XSlider/anythingslider.css", 'file');
+    drupal_add_css('.fade {opacity: 1!important;}', 'inline');
+    
+    $html.= "<h3 class='node-title'>" .$node->title. "</h3>";
+    $html.= "<div id='XSliderContainer' style='width:100%'>" . $sliderOutput . "</div>";
+
+    $output = array (
+		'#type' => 'markup',
+		'#prefix' => '<div class="page-image-region">',
+		'#markup' => $html,
+		'#suffix' => '</div>',
+		);
+	return $output;     
+
+}
+
+
+function wpRelatedLinks(){
+    $path = current_path();
+    $pageArray = explode ("/",$path);
+    $node = node_load($pageArray[1]);
+
+    $links = "<div class='related-links-div'><h3>Related Links</h3>";
+    $linkCount = 0;
+
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    
+    $imgDoc = '<i class="fa fa-file-pdf-o" aria-hidden="true"></i>';
+    $imgExt = '<i class="fa fa-external-link-square" aria-hidden="true"></i>';
+    $imgInt = '<i class="fa fa-circle-o" aria-hidden="true"></i>';
+    $imgPic = '<i class="fa fa-picture-o" aria-hidden="true"></i>';
+
+    if(!empty($node->field_waterfall_related_entities)){
+        $content = $node->field_waterfall_related_entities[LANGUAGE_NONE];
+        foreach($content as $temp){
+            $tmpnode = node_load($temp['target_id']);
+
+            // Get Title
+            if (isset($tmpnode->field_waterfall_display_title[LANGUAGE_NONE][0]['safe_value'])) {
+                $nodeTitle = $tmpnode->field_waterfall_display_title[LANGUAGE_NONE][0]['safe_value'];
+            } else {
+                $nodeTitle = isset($tmpnode->title) ? $tmpnode->title : "";
+            }
+            
+            // PAGE
+            if(isset($tmpnode->field_waterfall_content_entities)){
+                $nodeID = $tmpnode->nid;
+                $nodeURL = "node/" . $nodeID;
+                $nodeAlias = drupal_lookup_path("alias", $nodeURL);
+                if ($nodeAlias === false) {
+                    $links .= "<div class='related-link-element'><a href='/${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                } else {
+                    $links .= "<div class='related-link-element'><a href='/${nodeAlias}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                }
+                $linkCount++;
+            }
+
+            // EXTERNAL LINK
+            if(isset($tmpnode->field_waterfall_link_entity)){
+                $nodeURL = $tmpnode->field_waterfall_link_entity[LANGUAGE_NONE][0]['url'];
+                $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor' target='_blank'><span class='related-link-icon'>${imgExt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                $linkCount++;
+            }
+
+            // FILE
+            if(isset($tmpnode->field_waterfall_file_entity)){
+                $nodeURI = $tmpnode->field_waterfall_file_entity[LANGUAGE_NONE][0]['uri'];
+                $nodeURL = file_create_url($nodeURI);
+                $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgDoc}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                $linkCount++;
+            }
+
+            // IMAGE
+            if(isset($tmpnode->field_waterfall_image_entity)){
+                $nodeURI = $tmpnode->field_waterfall_image_entity[LANGUAGE_NONE][0]['uri'];
+                $nodeURL = file_create_url($nodeURI);
+                $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgPic}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                $linkCount++;
+            }
+
+        }
+    }
+    
+    $links.= "</div>";
+    if ($linkCount == 0) {
+        $links = "";
+    }
+    
+	$output = array (
+		'#type' => 'markup',
+		'#prefix' => '',
+		'#markup' => $links,
+		'#suffix' => '',
+		);
+	return $output;
+}
+
+
+function wpCreateWaterfall($base, $page) {
+    wpMakeThumbnails();
+
+    $waterfallTiles = Array();
+    $waterfall="";
+
+    $waterNodes = array();
+    $mainMenu = menu_build_tree("main-menu");
+    foreach($mainMenu as $parent) {
+        $linkPath = isset($parent['link']['link_path']) ? $parent['link']['link_path'] : "";
+        if (($base."/".$page) == $linkPath) {
+            $children = isset($parent['below']) ? $parent['below'] : array();
+            foreach($children as $child) {
+                $linkPath = isset($child['link']['link_path']) ? $child['link']['link_path'] : ""; 
+                $sourcePath = drupal_get_normal_path($linkPath);
+                $nid = str_replace("node/","",$sourcePath);
+                if (is_int(intval($nid))) {
+                    array_push($waterNodes, $nid);
+                }
+            }
+        }
+    }
+
+    foreach($waterNodes as $thisNid) {
+
+        $outputLNK = "";
+        $outputIMG = "";
+        $outputALT = "";
+        $outputTXT = "";
+        $outputTTL = "";
+        $outputBIG = "1";
+
+        $thisNode = node_load($thisNid);
+        // TITLE
+        $outputTTL = $thisNode->title;
+        
+        $outputTTL = preg_replace_callback("/[a-zA-Z\-]+/", function($m) { return " " . trim($m[0]) . " "; }, $outputTTL);
+        
+        // LINK
+        $nodeAlias = drupal_lookup_path("alias", "node/" . $thisNid);
+        if ($nodeAlias === false) {
+            $outputLNK = "/node/" . $thisNid;
+        } else {
+            $outputLNK = "/" . $nodeAlias;
+        }
+        
+        // TILE SIZE
+        if (isset($thisNode->field_size["und"][0]["value"])) {
+            $outputBIG = $thisNode->field_size["und"][0]["value"];
+        }
+
+        // TEXT SUMMARY
+        if (isset($thisNode->field_waterfall_content_entities[LANGUAGE_NONE][0]['target_id'])) {
+            $contentNodeID = $thisNode->field_waterfall_content_entities[LANGUAGE_NONE][0]['target_id'];
+            $contentNode = node_load($contentNodeID);
+            $textSummary = "";
+            $textValue = "...";
+            if (isset($contentNode->field_waterfall_text_entity[LANGUAGE_NONE][0]['summary'])) { $textSummary =  $contentNode->field_waterfall_text_entity[LANGUAGE_NONE][0]['summary']; }
+            if (isset($contentNode->field_waterfall_text_entity[LANGUAGE_NONE][0]['value'])) {   $textValue =  $contentNode->field_waterfall_text_entity[LANGUAGE_NONE][0]['value']; }
+            if (trim($textSummary) == "") { $markup = $textValue; } else { $markup = $textSummary; }
+
+            // REMOVE TABLES
+            $pattern = '%<table\b[^>]*+>(?:(?R)|[^<]*+(?:(?!</?table\b)<[^<]*+)*+)*+</table>%i';
+            $replace = ' ';
+            $markup = preg_replace($pattern, $replace, $markup);
+
+            // REMOVE ANCHORS
+            $markup = wpStripSingleHTMLTags("a",$markup);
+
+            // REMOVE STRONG
+            $markup = wpStripSingleHTMLTags("strong",$markup);
+
+            // REMOVE NON PRINTABLE CHARACTERS
+            $markup = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $markup);
+
+            // TAKE SAMPLE OF REMAINING
+            $alter['html'] = true;
+            $alter['word_boundary'] = true;
+            $alter['ellipsis'] = true;
+            $alter['max_length'] = 256;
+            $outputTXT = views_trim_text($alter, $markup);
+        }
+
+        // IMAGE or YOUTUBE THUMBNAIL
+        if (isset($thisNode->field_waterfall_media_entities[LANGUAGE_NONE][0]['target_id'])) {
+            $mediaNodeID = $thisNode->field_waterfall_media_entities[LANGUAGE_NONE][0]['target_id'];
+            $mediaNode = node_load($mediaNodeID);
+
+            // IMAGE
+            if (isset($mediaNode->field_waterfall_image_entity["und"][0]["uri"])) {
+                $imgURI = $mediaNode->field_waterfall_image_entity["und"][0]["uri"];
+                $outputIMG = file_create_url($imgURI);
+                $outputALT = $mediaNode->title;
+            }
+            // VIDEO
+            if (isset($mediaNode->field_waterfall_video_entity["und"][0]["video_id"])) {
+                $vidID = $mediaNode->field_waterfall_video_entity["und"][0]["video_id"];
+                $outputIMG = wpGetYoutubeImage($vidID);
+                $outputALT = $mediaNode->title .' thumbnail';
+            }
+            // FORCE USE OF THUMBNAIL IMAGES IN WATERFALL
+            $outputIMG = str_replace("/files/images/","/files/images/thumbs/",$outputIMG);
+            $outputIMG = str_replace("/files/youtube_images/","/files/youtube_images/thumbs/",$outputIMG);
+        }
+
+        if (($outputIMG != "") && ($outputTXT != "")) {
+            $waterfallTile = "";
+            $waterfallTile .= "<div class='item views-row' data-span='${outputBIG}'>";
+            $waterfallTile .= "<div class='waterfall-item-container'>";
+            $waterfallTile .= "<div class='waterfall-item-image'><a href='${outputLNK}'><img src='${outputIMG}' alt='${outputALT}' ></a></div>";
+            $waterfallTile .= "<div class='waterfall-item-content'>";
+            $waterfallTile .= "<div class='waterfall-item-title'><a href='${outputLNK}'>${outputTTL}</a></div>";
+            $waterfallTile .= "<div class='waterfall-item-body'><span>${outputTXT}</span></div>";
+            $waterfallTile .= "</div></div></div>";
+            $waterfallTiles[] = $waterfallTile;
+        }
+
+    }
+
+    // ================================= ADD JAVASCRIPT =========================================
+    $jScript = "\n\n (function ($) { jQuery(document).ready(function($) { ";
+        // RUN WATERFALL
+        $jScript.= "\n\n $('#waterfall-wrapper').waterfall(); ";
+        $jScript.= "\n\n $('.waterfall-item-image img').css({'width':'100%'}); ";
+
+        // FUNCTIONS
+        $jScript.= "\n\n function rePadWaterfall() { myPad = Math.floor($(window).width() * 0.03); if(myPad>30){myPad=30;} if(myPad<18){myPad=18;} $('.waterfall-item-content').css({'padding': myPad + 'px'}); } ";
+        $jScript.= "\n\n function reCalcWaterfall() { $('#waterfall-wrapper').waterfall(); wfh = $('#waterfall-wrapper').height(); $('.waterfall').css({'min-height': wfh + 'px'}); } ";
+
+        // RERUN WATERFALL
+        $jScript.= "\n\n $(window).load(function(){ rePadWaterfall(); reCalcWaterfall(); setTimeout(function() { rePadWaterfall(); reCalcWaterfall(); }, 300); });  ";
+        $jScript.= "\n\n $( window ).resize(function() { rePadWaterfall(); reCalcWaterfall(); }); ";
+    $jScript.= "\n\n }); }(jQuery)); ";
+    drupal_add_js($jScript, 'inline');
+
+    $waterfall.="<div id='waterfall-wrapper' class='waterfall-content' data-width='300'>";
+    foreach($waterfallTiles as $tile) { $waterfall.= $tile; }
+    $waterfall.="</div>";
+   
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    $waterfall.="\n\n<script src='/" . $module_path . "/waterfall/zepto.js'></script>";
+    $waterfall.="\n<script src='/" . $module_path . "/waterfall/jquery.waterfall.js'></script>";
+
+	$output = array (
+		'#type' => 'markup',
+		'#prefix' => '<div class="waterfall site-waterfall">',
+		'#markup' => $waterfall,
+		'#suffix' => '</div>',
+		);
+	return $output;
+
+}
+
+
+/* ================ HELPER FUNCTIONS ================ */
+
+// == remove html tags ==
+function wpStripSingleHTMLTags($tag,$string){
+    $string=preg_replace('/<'.$tag.'[^>]*>/i', '', $string);
+    $string=preg_replace('/<\/\s*'.$tag.'\s*>/i', '', $string);
+    return $string;
+}
+
+// == Make Thumbnails for waterfall ==
+function wpMakeThumbnails() {
+    $module_path = drupal_get_path('module', 'waterfall_pages');
+    $tubeImg = DRUPAL_ROOT . "/" . $module_path . "/images/tube.png";
+
+    $ytPath = DRUPAL_ROOT . "/". variable_get('file_public_path', conf_path() . '/files') . "/youtube_images/";
+    if (!file_exists($ytPath)) { mkdir($ytPath, 0777, true); }
+    $ytThumb = $ytPath . "thumbs/";
+    if (!file_exists($ytThumb)) { mkdir($ytThumb, 0777, true); }
+    $imgPath = DRUPAL_ROOT . "/". variable_get('file_public_path', conf_path() . '/files') . "/images/";
+    if (!file_exists($imgPath)) { mkdir($imgPath, 0777, true); }
+    $imgThumb = $imgPath . "thumbs/";
+    if (!file_exists($imgThumb)) { mkdir($imgThumb, 0777, true); }
+    
+    $files = scandir($imgPath);
+    foreach($files as $file) {
+        if (stripos($file,".jpg") !== false) {
+            if (!file_exists("{$imgThumb}{$file}")) {
+                $img = @imagecreatefromjpeg("{$imgPath}{$file}");
+                if ($img) {
+                    $thumbWidth = 800;
+                    $width = imagesx($img);
+                    $height = imagesy($img);
+                    $new_width = $thumbWidth;
+                    $new_height = floor( $height * ( $thumbWidth / $width ) );
+                    $tmp_img = imagecreatetruecolor( $new_width, $new_height );
+                    imagecopyresampled( $tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
+                    imagejpeg( $tmp_img, "{$imgThumb}{$file}", 90 );
+                }
+            }
+        }
+    }
+    foreach($files as $file) {
+        if (stripos($file,".png") !== false) {
+            if (!file_exists("{$imgThumb}{$file}")) {
+                $img = @imagecreatefrompng ("{$imgPath}{$file}");
+                if ($img) {
+                    $thumbWidth = 800;
+                    $width = imagesx($img);
+                    $height = imagesy($img);
+                    $new_width = $thumbWidth;
+                    $new_height = floor( $height * ( $thumbWidth / $width ) );
+                    $tmp_img = imagecreatetruecolor( $new_width, $new_height );
+                    imagecopyresampled( $tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
+                    imagepng( $tmp_img, "{$imgThumb}{$file}", 5 );
+                }
+            }
+        }
+    }
+    
+    $ytOver = imagecreatefromstring(file_get_contents($tubeImg));
+    $files = scandir($ytPath);
+    foreach($files as $file) {
+        if (stripos($file,".jpg") !== false) {
+            if (!file_exists("{$ytThumb}{$file}")) {
+                $img = @imagecreatefromjpeg("{$ytPath}{$file}");
+                if ($img) {
+                    $thumbWidth = 800;
+                    $width = imagesx($img);
+                    $height = imagesy($img);
+                    $new_width = $thumbWidth;
+                    $new_height = floor( $height * ( $thumbWidth / $width ) );
+                    $tmp_img = imagecreatetruecolor( $new_width, $new_height );
+                    imagecopyresampled( $tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
+                    // add YouTube Overlay
+                    imagecopy($tmp_img, $ytOver,($new_width-65),($new_height-65), 0, 0, 60, 60);
+                    imagejpeg( $tmp_img, "{$ytThumb}{$file}", 90 );
+                }
+            }
+        }
+    }
+}
+
+// == Get Youtube Image ==
+function wpGetYoutubeImage($vidID) {
+
+    $ytPath = "/". variable_get('file_public_path', conf_path() . '/files') . "/youtube_images";
+    $ytPathFull = DRUPAL_ROOT . $ytPath;
+    $ytImg = $ytPath . "/" . $vidID . ".jpg";
+    $ytImgFull = $ytPathFull . "/" . $vidID . ".jpg";
+
+    if(file_exists($ytImgFull)) {
+        return $ytImg;
+    } else {
+
+        $maxURL = "http://i.ytimg.com/vi/${vidID}/maxresdefault.jpg";
+        $stdURL = "http://i.ytimg.com/vi/${vidID}/mqdefault.jpg"; 
+
+        $max = get_headers($maxURL);
+        if (substr($max[0], 9, 3) !== '404') {
+            $image_url = $maxURL;   
+        } else {
+            $image_url = $stdURL;
+        }
+        
+        $opts = array(
+            'http'=>array(
+                'method'=>"GET",
+                'header'=>"Accept-language: en\r\n" .
+                    "User-Agent: Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36\r\n" .
+                    "Referer: http://www.byu.edu\r\n"
+            )
+        );
+        
+        // DOWNLOAD AND SAVE FILE
+        $data = file_get_contents($image_url, false, stream_context_create($opts));
+        if ($data) {
+            $file = fopen($ytImgFull, "wb+");
+            fputs($file, $data);
+            fclose($file);
+        }
+        return $image_url;
+    }
+
+}
+

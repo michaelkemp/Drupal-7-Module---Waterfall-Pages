@@ -1,0 +1,110 @@
+<?php
+
+/* http://fredparke.com/blog/creating-content-types-and-fields-using-custom-module-drupal-7 */
+
+require_once('waterfall_pages.field_base.inc');
+require_once('waterfall_pages.field_instance.inc');
+
+
+/**
+ * Implements hook_install().
+ */
+function waterfall_pages_install() {
+
+    node_types_rebuild();
+    
+    foreach (_waterfall_pages_installed_fields() as $field) {
+        field_create_field($field);
+    }
+    foreach (_waterfall_pages_installed_instances() as $fieldinstance) {
+        field_create_instance($fieldinstance);
+    }    
+ 
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function waterfall_pages_uninstall() {
+    $nodeids = array();
+    
+    $type1 = 'waterfall_file';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $type1));
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    $type2 = 'waterfall_image';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $type2));
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    $type3 = 'waterfall_link';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $type3));
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    $type4 = 'waterfall_text';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $type4));
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    $type5 = 'waterfall_video';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $type5));
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    $type6 = 'waterfall_page';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $type6));
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    
+    node_delete_multiple($nodeids);
+
+
+    foreach (array_keys(_waterfall_pages_installed_fields()) as $field) {
+        field_delete_field($field);
+    }
+    $instances = field_info_instances('node', 'waterfall_file');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+    $instances = field_info_instances('node', 'waterfall_image');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+    $instances = field_info_instances('node', 'waterfall_link');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+    $instances = field_info_instances('node', 'waterfall_text');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+    $instances = field_info_instances('node', 'waterfall_video');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+    $instances = field_info_instances('node', 'waterfall_page');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+    
+    node_type_delete($type1);
+    node_type_delete($type2);
+    node_type_delete($type3);
+    node_type_delete($type4);
+    node_type_delete($type5);
+    node_type_delete($type6);
+    field_purge_batch(500);
+    
+
+}
+
+

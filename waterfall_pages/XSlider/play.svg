@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="110" height="110" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+        <filter id="dShad" x="-5" y="-5" width="100" height="100">
+            <feOffset result="offOut" in="SourceAlpha" dx="2.5" dy="2.5" />
+            <feGaussianBlur result="blurOut" in="offOut" stdDeviation="1.5" />
+            <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+        </filter>
+    </defs>
+
+<circle cx="50" cy="50" r="45" stroke="white" stroke-width="5" fill="#fff" fill-opacity="0.1" filter="url(#dShad)" />
+<path d = "M 35 25 L 80 50 L 35 75 L 35 25" stroke="white" stroke-width="1" fill="#fff" fill-opacity="0.8" filter="url(#dShad)"/>
+</svg>

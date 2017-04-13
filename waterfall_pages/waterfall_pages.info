@@ -1,0 +1,17 @@
+name = Waterfall Pages Module
+description = Blocks and CSS for Waterfall Pages
+core = 7.x
+version = 2.63
+
+dependencies[] = entityreference
+dependencies[] = file
+dependencies[] = image
+dependencies[] = link
+dependencies[] = list
+dependencies[] = options
+dependencies[] = text
+dependencies[] = youtube
+
+files[] = waterfall_pages.module
+stylesheets[all][] = css/waterfall_pages.css
+
