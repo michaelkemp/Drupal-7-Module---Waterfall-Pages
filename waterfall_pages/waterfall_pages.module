@@ -438,18 +438,21 @@ function wpNodeImageSlider() {
                 if (isset($slideNode->type)) {
                     if (isset($slideNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value'])) {
                         $caption = '<div class="caption-bottom">' . $slideNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value'] . '</div>';
+                        $dspTTL = trim($slideNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value']);
                     } else {
-                        $caption = '';
+                        $caption = "";
+                        $dspTTL = "";
                     }
                     if ($slideNode->type == "waterfall_video") {
                         $vidID = $slideNode->field_waterfall_video_entity[LANGUAGE_NONE][0]['video_id'];
                         $ytImg = wpGetYoutubeImage($vidID);
-                        $ytAlt = $slideNode->title .' thumbnail';
+                        $ytAlt = ($dspTTL == "") ? $slideNode->title .' thumbnail' : $dspTTL;
                         $sliderOutput.= '<li><img id="youtube-slide:' .$vidID. '" src="'.$ytImg.'" alt="'.$ytAlt.'">' .$caption. '</li>';
                     } else if ($slideNode->type == "waterfall_image") {
                         $imgURI = $slideNode->field_waterfall_image_entity[LANGUAGE_NONE][0]['uri'];
+                        $altTXT = isset($slideNode->field_waterfall_image_entity[LANGUAGE_NONE][0]['alt']) ? trim($slideNode->field_waterfall_image_entity[LANGUAGE_NONE][0]['alt']) : "";
                         $imgURL = file_create_url($imgURI);
-                        $imgAlt = $slideNode->title;
+                        $imgAlt = ($altTXT == "") ? (($dspTTL == "") ? $slideNode->title : $dspTTL) : $altTXT;
                         $sliderOutput.= '<li><img src="' .$imgURL. '" alt="'.$imgAlt.'">' .$caption. '</li>';
                     }
                 }
@@ -457,7 +460,7 @@ function wpNodeImageSlider() {
         }
     }
     $sliderOutput.= '</ul>';
-
+    
     $module_path = drupal_get_path('module', 'waterfall_pages');
     drupal_add_js('/' . $module_path . '/XSlider/iframe_api.js', array('type'=>'file', 'scope'=>'footer') );
     drupal_add_js('/' . $module_path . '/XSlider/jquery.anythingslider.min.js', array('type'=>'file', 'scope'=>'footer'));
@@ -647,18 +650,20 @@ function wpCreateWaterfall($base, $page) {
         if (isset($thisNode->field_waterfall_media_entities[LANGUAGE_NONE][0]['target_id'])) {
             $mediaNodeID = $thisNode->field_waterfall_media_entities[LANGUAGE_NONE][0]['target_id'];
             $mediaNode = node_load($mediaNodeID);
-
+            $dspTTL = isset($mediaNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value']) ? trim($mediaNode->field_waterfall_display_title[LANGUAGE_NONE][0]['value']) : "";
+            
             // IMAGE
             if (isset($mediaNode->field_waterfall_image_entity["und"][0]["uri"])) {
                 $imgURI = $mediaNode->field_waterfall_image_entity["und"][0]["uri"];
+                $altTXT = isset($mediaNode->field_waterfall_image_entity[LANGUAGE_NONE][0]['alt']) ? trim($mediaNode->field_waterfall_image_entity[LANGUAGE_NONE][0]['alt']) : "";
                 $outputIMG = file_create_url($imgURI);
-                $outputALT = $mediaNode->title;
+                $outputALT = ($altTXT == "") ? (($dspTTL == "") ? $mediaNode->title : $dspTTL) : $altTXT;
             }
             // VIDEO
             if (isset($mediaNode->field_waterfall_video_entity["und"][0]["video_id"])) {
                 $vidID = $mediaNode->field_waterfall_video_entity["und"][0]["video_id"];
                 $outputIMG = wpGetYoutubeImage($vidID);
-                $outputALT = $mediaNode->title .' thumbnail';
+                $outputALT = ($dspTTL == "") ? $mediaNode->title .' thumbnail' : $dspTTL;
             }
             // FORCE USE OF THUMBNAIL IMAGES IN WATERFALL
             $outputIMG = str_replace("/files/images/","/files/images/thumbs/",$outputIMG);
