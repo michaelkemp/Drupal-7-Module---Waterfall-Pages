@@ -597,7 +597,7 @@ function wpCreateWaterfall($base, $page) {
 
         $thisNode = node_load($thisNid);
         // TITLE
-        $outputTTL = $thisNode->title;
+        $outputTTL = isset($thisNode->title) ? $thisNode->title : "";
         
         $outputTTL = preg_replace_callback("/[a-zA-Z\-]+/", function($m) { return " " . trim($m[0]) . " "; }, $outputTTL);
         
