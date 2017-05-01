@@ -483,74 +483,77 @@ function wpNodeImageSlider() {
 
 
 function wpRelatedLinks(){
-    $path = current_path();
-    $pageArray = explode ("/",$path);
-    $node = node_load($pageArray[1]);
-
-    $links = "<div class='related-links-div'><h3>Related Links</h3>";
-    $linkCount = 0;
-
-    $module_path = drupal_get_path('module', 'waterfall_pages');
     
-    $imgDoc = '<i class="fa fa-file-pdf-o" aria-hidden="true"></i>';
-    $imgExt = '<i class="fa fa-external-link-square" aria-hidden="true"></i>';
-    $imgInt = '<i class="fa fa-circle-o" aria-hidden="true"></i>';
-    $imgPic = '<i class="fa fa-picture-o" aria-hidden="true"></i>';
+    $links = "";
+    
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $nid = arg(1);
+        $node = node_load($nid);
+        $links = "<div class='related-links-div'><h3>Related Links</h3>";
+        $linkCount = 0;
 
-    if(!empty($node->field_waterfall_related_entities)){
-        $content = $node->field_waterfall_related_entities[LANGUAGE_NONE];
-        foreach($content as $temp){
-            $tmpnode = node_load($temp['target_id']);
+        $module_path = drupal_get_path('module', 'waterfall_pages');
+        
+        $imgDoc = '<i class="fa fa-file-pdf-o" aria-hidden="true"></i>';
+        $imgExt = '<i class="fa fa-external-link-square" aria-hidden="true"></i>';
+        $imgInt = '<i class="fa fa-circle-o" aria-hidden="true"></i>';
+        $imgPic = '<i class="fa fa-picture-o" aria-hidden="true"></i>';
 
-            // Get Title
-            if (isset($tmpnode->field_waterfall_display_title[LANGUAGE_NONE][0]['safe_value'])) {
-                $nodeTitle = $tmpnode->field_waterfall_display_title[LANGUAGE_NONE][0]['safe_value'];
-            } else {
-                $nodeTitle = isset($tmpnode->title) ? $tmpnode->title : "";
-            }
-            
-            // PAGE
-            if(isset($tmpnode->field_waterfall_content_entities)){
-                $nodeID = $tmpnode->nid;
-                $nodeURL = "node/" . $nodeID;
-                $nodeAlias = drupal_lookup_path("alias", $nodeURL);
-                if ($nodeAlias === false) {
-                    $links .= "<div class='related-link-element'><a href='/${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+        if(!empty($node->field_waterfall_related_entities)){
+            $content = $node->field_waterfall_related_entities[LANGUAGE_NONE];
+            foreach($content as $temp){
+                $tmpnode = node_load($temp['target_id']);
+
+                // Get Title
+                if (isset($tmpnode->field_waterfall_display_title[LANGUAGE_NONE][0]['safe_value'])) {
+                    $nodeTitle = $tmpnode->field_waterfall_display_title[LANGUAGE_NONE][0]['safe_value'];
                 } else {
-                    $links .= "<div class='related-link-element'><a href='/${nodeAlias}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                    $nodeTitle = isset($tmpnode->title) ? $tmpnode->title : "";
                 }
-                $linkCount++;
-            }
+                
+                // PAGE
+                if(isset($tmpnode->field_waterfall_content_entities)){
+                    $nodeID = $tmpnode->nid;
+                    $nodeURL = "node/" . $nodeID;
+                    $nodeAlias = drupal_lookup_path("alias", $nodeURL);
+                    if ($nodeAlias === false) {
+                        $links .= "<div class='related-link-element'><a href='/${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                    } else {
+                        $links .= "<div class='related-link-element'><a href='/${nodeAlias}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                    }
+                    $linkCount++;
+                }
 
-            // EXTERNAL LINK
-            if(isset($tmpnode->field_waterfall_link_entity)){
-                $nodeURL = $tmpnode->field_waterfall_link_entity[LANGUAGE_NONE][0]['url'];
-                $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor' target='_blank'><span class='related-link-icon'>${imgExt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
-                $linkCount++;
-            }
+                // EXTERNAL LINK
+                if(isset($tmpnode->field_waterfall_link_entity)){
+                    $nodeURL = $tmpnode->field_waterfall_link_entity[LANGUAGE_NONE][0]['url'];
+                    $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor' target='_blank'><span class='related-link-icon'>${imgExt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                    $linkCount++;
+                }
 
-            // FILE
-            if(isset($tmpnode->field_waterfall_file_entity)){
-                $nodeURI = $tmpnode->field_waterfall_file_entity[LANGUAGE_NONE][0]['uri'];
-                $nodeURL = file_create_url($nodeURI);
-                $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgDoc}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
-                $linkCount++;
-            }
+                // FILE
+                if(isset($tmpnode->field_waterfall_file_entity)){
+                    $nodeURI = $tmpnode->field_waterfall_file_entity[LANGUAGE_NONE][0]['uri'];
+                    $nodeURL = file_create_url($nodeURI);
+                    $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgDoc}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                    $linkCount++;
+                }
 
-            // IMAGE
-            if(isset($tmpnode->field_waterfall_image_entity)){
-                $nodeURI = $tmpnode->field_waterfall_image_entity[LANGUAGE_NONE][0]['uri'];
-                $nodeURL = file_create_url($nodeURI);
-                $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgPic}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
-                $linkCount++;
-            }
+                // IMAGE
+                if(isset($tmpnode->field_waterfall_image_entity)){
+                    $nodeURI = $tmpnode->field_waterfall_image_entity[LANGUAGE_NONE][0]['uri'];
+                    $nodeURL = file_create_url($nodeURI);
+                    $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgPic}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
+                    $linkCount++;
+                }
 
+            }
         }
-    }
-    
-    $links.= "</div>";
-    if ($linkCount == 0) {
-        $links = "";
+        
+        $links.= "</div>";
+        if ($linkCount == 0) {
+            $links = "";
+        }
     }
     
 	$output = array (
