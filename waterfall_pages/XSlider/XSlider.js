@@ -1,5 +1,5 @@
 
-var imagePath = "/" + Drupal.settings.thisModule.waterfallPath + "/XSlider/";
+var imagePath = Drupal.settings.thisModule.waterfallPath + "/XSlider/";
 var helicopter = false;
 var slideTimer;
 var slideShowTime = 6000;

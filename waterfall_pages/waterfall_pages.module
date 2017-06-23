@@ -90,7 +90,7 @@ function waterfall_pages_help($path, $arg){
 */
 function waterfall_pages_init(){
     // module path used by XSlider
-    $module_path = drupal_get_path('module', 'waterfall_pages');
+    $module_path = url(drupal_get_path('module', 'waterfall_pages'), array('alias'=>false,'absolute'=>true));
     drupal_add_js(array("thisModule"=> array('waterfallPath' => $module_path)), "setting");
 
 }
@@ -176,8 +176,8 @@ function waterfall_pages_menu() {
 
 
 function wp404PageNotFound() {
-    $module_path = drupal_get_path('module', 'waterfall_pages');
-    $img = "/" . $module_path . "/images/brigham.svg";
+
+    $img = url(drupal_get_path('module', 'waterfall_pages') . "/images/brigham.svg", array('absolute'=>true)) ;
     $url = $_SERVER["REQUEST_URI"];
 
 $html=<<<HTML
@@ -236,8 +236,8 @@ JS;
 }
 
 function wp403AccessDenied() {
-    $module_path = drupal_get_path('module', 'waterfall_pages');
-    $img = "/" . $module_path . "/images/brigham.svg";
+
+    $img = url(drupal_get_path('module', 'waterfall_pages') . "/images/brigham.svg", array('absolute'=>true)) ;
     $url = $_SERVER["REQUEST_URI"];
 
 $html=<<<HTML
@@ -297,15 +297,14 @@ JS;
 
 /* ======= Output Sitemap (SEO) ========== */
 function wpSiteMap() {
-    $ssl = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true:false;
-    if ($ssl) {$protocol = "https";} else {$protocol = "http";}
-    $host     = $_SERVER['HTTP_HOST'];
 
+    global $base_url;
+ 
     $date = date('Y-m-d',strtotime("+14 day", time()));
     echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     echo '  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
     echo "      <url>\n";
-    echo "          <loc>" . $protocol . "://" . $host . "/" . "</loc>\n";
+    echo "          <loc>" . $base_url . "/" . "</loc>\n";
     echo "      </url>\n";
 
     // RUN VIEW
@@ -323,7 +322,7 @@ function wpSiteMap() {
             $alias = $nodeAlias;
         }
         echo '      <url>' . "\n";
-        echo '          <loc>' . $protocol . "://" . $host . "/" . $alias. '</loc>' . "\n";
+        echo '          <loc>' . $base_url . "/" . $alias. '</loc>' . "\n";
         echo '      </url>' . "\n";
     }
 
@@ -378,8 +377,8 @@ function waterfall_pages_block_view($block_name = ""){
 }
 
 function wpScrollTop () {
-    $module_path = drupal_get_path('module', 'waterfall_pages');
-    $img = "/" . $module_path . "/images/up.png";
+
+    $img = url(drupal_get_path('module', 'waterfall_pages') . "/images/up.png", array('alias'=>false,'absolute'=>true));
 
 $js=<<<JS
     (function ($) { jQuery(document).ready(function($) {
@@ -414,9 +413,9 @@ JS;
 function wpNodeImageSlider() {
     $html = "";
     
-    $URL = explode('/',current_path());
-    if($URL[0] === 'node') { 
-        $node = node_load($URL[1]); 
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $nid = arg(1);
+        $node = node_load($nid);
     } else {
         $output = array (
             '#type' => 'markup',
@@ -426,7 +425,6 @@ function wpNodeImageSlider() {
             );
         return $output;     
     }
-    
     
 
     $sliderOutput = '<ul id="imageSlider">';
@@ -462,9 +460,9 @@ function wpNodeImageSlider() {
     $sliderOutput.= '</ul>';
     
     $module_path = drupal_get_path('module', 'waterfall_pages');
-    drupal_add_js('/' . $module_path . '/XSlider/iframe_api.js', array('type'=>'file', 'scope'=>'footer') );
-    drupal_add_js('/' . $module_path . '/XSlider/jquery.anythingslider.min.js', array('type'=>'file', 'scope'=>'footer'));
-    drupal_add_js('/' . $module_path . '/XSlider/XSlider.js', array('type'=>'file', 'scope'=>'footer'));
+    drupal_add_js($module_path . '/XSlider/iframe_api.js', array('type'=>'file', 'scope'=>'footer') );
+    drupal_add_js($module_path . '/XSlider/jquery.anythingslider.min.js', array('type'=>'file', 'scope'=>'footer'));
+    drupal_add_js($module_path . '/XSlider/XSlider.js', array('type'=>'file', 'scope'=>'footer'));
     drupal_add_css($module_path ."/XSlider/anythingslider.css", 'file');
     drupal_add_css('.fade {opacity: 1!important;}', 'inline');
     
@@ -514,13 +512,8 @@ function wpRelatedLinks(){
                 // PAGE
                 if(isset($tmpnode->field_waterfall_content_entities)){
                     $nodeID = $tmpnode->nid;
-                    $nodeURL = "node/" . $nodeID;
-                    $nodeAlias = drupal_lookup_path("alias", $nodeURL);
-                    if ($nodeAlias === false) {
-                        $links .= "<div class='related-link-element'><a href='/${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
-                    } else {
-                        $links .= "<div class='related-link-element'><a href='/${nodeAlias}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
-                    }
+                    $nodeURL = url("node/" . $nodeID, array('alias'=>false,'absolute'=>true));
+                    $links .= "<div class='related-link-element'><a href='${nodeURL}' class='related-link-anchor'><span class='related-link-icon'>${imgInt}</span><span class='related-link-title'>${nodeTitle}</span></a></div>";
                     $linkCount++;
                 }
 
@@ -603,15 +596,9 @@ function wpCreateWaterfall($base, $page) {
         $outputTTL = isset($thisNode->title) ? $thisNode->title : "";
         
         $outputTTL = preg_replace_callback("/[a-zA-Z\-]+/", function($m) { return " " . trim($m[0]) . " "; }, $outputTTL);
-        
-        // LINK
-        $nodeAlias = drupal_lookup_path("alias", "node/" . $thisNid);
-        if ($nodeAlias === false) {
-            $outputLNK = "/node/" . $thisNid;
-        } else {
-            $outputLNK = "/" . $nodeAlias;
-        }
-        
+       
+        $outputLNK = url("node/" . $thisNid, array('alias'=>false,'absolute'=>true));
+
         // TILE SIZE
         if (isset($thisNode->field_size["und"][0]["value"])) {
             $outputBIG = $thisNode->field_size["und"][0]["value"];
@@ -669,8 +656,11 @@ function wpCreateWaterfall($base, $page) {
                 $outputALT = ($dspTTL == "") ? $mediaNode->title .' thumbnail' : $dspTTL;
             }
             // FORCE USE OF THUMBNAIL IMAGES IN WATERFALL
-            $outputIMG = str_replace("/files/images/","/files/images/thumbs/",$outputIMG);
-            $outputIMG = str_replace("/files/youtube_images/","/files/youtube_images/thumbs/",$outputIMG);
+            if (strpos($outputIMG,"youtube_images") !== false) {
+                $outputIMG = str_replace("/files/youtube_images/","/files/youtube_images/thumbs/",$outputIMG);
+            } else {
+                $outputIMG = str_replace("/files/","/files/thumbs/",$outputIMG);
+            }
         }
 
         if (($outputIMG != "") && ($outputTXT != "")) {
@@ -707,9 +697,9 @@ function wpCreateWaterfall($base, $page) {
     foreach($waterfallTiles as $tile) { $waterfall.= $tile; }
     $waterfall.="</div>";
    
-    $module_path = drupal_get_path('module', 'waterfall_pages');
-    $waterfall.="\n\n<script src='/" . $module_path . "/waterfall/zepto.js'></script>";
-    $waterfall.="\n<script src='/" . $module_path . "/waterfall/jquery.waterfall.js'></script>";
+    $module_path = url(drupal_get_path('module', 'waterfall_pages'), array('alias'=>false,'absolute'=>true));
+    $waterfall.="\n\n<script src='" . $module_path . "/waterfall/zepto.js'></script>";
+    $waterfall.="\n<script src='" . $module_path . "/waterfall/jquery.waterfall.js'></script>";
 
 	$output = array (
 		'#type' => 'markup',
@@ -735,12 +725,12 @@ function wpStripSingleHTMLTags($tag,$string){
 function wpMakeThumbnails() {
     $module_path = drupal_get_path('module', 'waterfall_pages');
     $tubeImg = DRUPAL_ROOT . "/" . $module_path . "/images/tube.png";
-
     $ytPath = DRUPAL_ROOT . "/". variable_get('file_public_path', conf_path() . '/files') . "/youtube_images/";
+
     if (!file_exists($ytPath)) { mkdir($ytPath, 0777, true); }
     $ytThumb = $ytPath . "thumbs/";
     if (!file_exists($ytThumb)) { mkdir($ytThumb, 0777, true); }
-    $imgPath = DRUPAL_ROOT . "/". variable_get('file_public_path', conf_path() . '/files') . "/images/";
+    $imgPath = DRUPAL_ROOT . "/". variable_get('file_public_path', conf_path() . '/files') . "/";
     if (!file_exists($imgPath)) { mkdir($imgPath, 0777, true); }
     $imgThumb = $imgPath . "thumbs/";
     if (!file_exists($imgThumb)) { mkdir($imgThumb, 0777, true); }
@@ -751,7 +741,7 @@ function wpMakeThumbnails() {
             if (!file_exists("{$imgThumb}{$file}")) {
                 $img = @imagecreatefromjpeg("{$imgPath}{$file}");
                 if ($img) {
-                    $thumbWidth = 800;
+                    $thumbWidth = 600;
                     $width = imagesx($img);
                     $height = imagesy($img);
                     $new_width = $thumbWidth;
@@ -768,7 +758,7 @@ function wpMakeThumbnails() {
             if (!file_exists("{$imgThumb}{$file}")) {
                 $img = @imagecreatefrompng ("{$imgPath}{$file}");
                 if ($img) {
-                    $thumbWidth = 800;
+                    $thumbWidth = 600;
                     $width = imagesx($img);
                     $height = imagesy($img);
                     $new_width = $thumbWidth;
@@ -788,7 +778,7 @@ function wpMakeThumbnails() {
             if (!file_exists("{$ytThumb}{$file}")) {
                 $img = @imagecreatefromjpeg("{$ytPath}{$file}");
                 if ($img) {
-                    $thumbWidth = 800;
+                    $thumbWidth = 600;
                     $width = imagesx($img);
                     $height = imagesy($img);
                     $new_width = $thumbWidth;
@@ -809,7 +799,7 @@ function wpGetYoutubeImage($vidID) {
 
     $ytPath = "/". variable_get('file_public_path', conf_path() . '/files') . "/youtube_images";
     $ytPathFull = DRUPAL_ROOT . $ytPath;
-    $ytImg = $ytPath . "/" . $vidID . ".jpg";
+    $ytImg = file_create_url("public://youtube_images/". $vidID . ".jpg");
     $ytImgFull = $ytPathFull . "/" . $vidID . ".jpg";
 
     if(file_exists($ytImgFull)) {
