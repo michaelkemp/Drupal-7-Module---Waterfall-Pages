@@ -90,7 +90,8 @@ function waterfall_pages_help($path, $arg){
 */
 function waterfall_pages_init(){
     // module path used by XSlider
-    $module_path = url(drupal_get_path('module', 'waterfall_pages'), array('alias'=>false,'absolute'=>true));
+    global $base_url;
+    $module_path = $base_url . "/". drupal_get_path('module', 'waterfall_pages');
     drupal_add_js(array("thisModule"=> array('waterfallPath' => $module_path)), "setting");
 
 }
@@ -177,7 +178,8 @@ function waterfall_pages_menu() {
 
 function wp404PageNotFound() {
 
-    $img = url(drupal_get_path('module', 'waterfall_pages') . "/images/brigham.svg", array('absolute'=>true)) ;
+    global $base_url;
+    $img = $base_url . "/". drupal_get_path('module', 'waterfall_pages') . "/images/brigham.svg";
     $url = $_SERVER["REQUEST_URI"];
 
 $html=<<<HTML
@@ -237,7 +239,8 @@ JS;
 
 function wp403AccessDenied() {
 
-    $img = url(drupal_get_path('module', 'waterfall_pages') . "/images/brigham.svg", array('absolute'=>true)) ;
+    global $base_url;
+    $img = $base_url . "/". drupal_get_path('module', 'waterfall_pages') . "/images/brigham.svg";
     $url = $_SERVER["REQUEST_URI"];
 
 $html=<<<HTML
@@ -378,7 +381,8 @@ function waterfall_pages_block_view($block_name = ""){
 
 function wpScrollTop () {
 
-    $img = url(drupal_get_path('module', 'waterfall_pages') . "/images/up.png", array('alias'=>false,'absolute'=>true));
+    global $base_url;
+    $img = $base_url . "/". drupal_get_path('module', 'waterfall_pages') . "/images/up.png";
 
 $js=<<<JS
     (function ($) { jQuery(document).ready(function($) {
@@ -560,6 +564,9 @@ function wpRelatedLinks(){
 
 
 function wpCreateWaterfall($base, $page) {
+
+    global $base_url;
+
     wpMakeThumbnails();
 
     $waterfallTiles = Array();
@@ -697,7 +704,7 @@ function wpCreateWaterfall($base, $page) {
     foreach($waterfallTiles as $tile) { $waterfall.= $tile; }
     $waterfall.="</div>";
    
-    $module_path = url(drupal_get_path('module', 'waterfall_pages'), array('alias'=>false,'absolute'=>true));
+    $module_path = $base_url . "/". drupal_get_path('module', 'waterfall_pages');
     $waterfall.="\n\n<script src='" . $module_path . "/waterfall/zepto.js'></script>";
     $waterfall.="\n<script src='" . $module_path . "/waterfall/jquery.waterfall.js'></script>";
 

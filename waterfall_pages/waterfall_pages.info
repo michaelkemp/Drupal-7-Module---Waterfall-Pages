@@ -1,7 +1,7 @@
 name = Waterfall Pages Module
 description = Blocks and CSS for Waterfall Pages
 core = 7.x
-version = 3.02
+version = 3.13
 
 dependencies[] = entityreference
 dependencies[] = file
